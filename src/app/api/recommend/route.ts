@@ -69,9 +69,21 @@ Recommend 2–4 top picks from the actual inventory. Be species-specific and con
       }
     );
 
-    if (!res.ok) throw new Error("Gemini API error");
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Gemini API error:", res.status, res.statusText, errText);
+      return NextResponse.json(
+        { error: `Gemini API error ${res.status}: ${errText.slice(0, 300)}` },
+        { status: 500 }
+      );
+    }
     const data = await res.json();
+    console.log("Gemini raw response:", JSON.stringify(data).slice(0, 500));
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    if (!text) {
+      console.error("Gemini returned no text. Full response:", JSON.stringify(data));
+      return NextResponse.json({ error: "Gemini returned an empty response. Check your API key quota." }, { status: 500 });
+    }
 
     const validated = safeParseJson(RecommendationSchema, text, "recommendation");
     if (!validated.success) {
