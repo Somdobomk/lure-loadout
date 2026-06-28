@@ -122,9 +122,12 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lures, conditions, aiContext: profile.aiContext }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error ${res.status}`);
+      }
       setCard(await res.json());
-    } catch { setError("Couldn't generate quick card — check your API key and try again."); }
+    } catch (err) { setError(err instanceof Error ? err.message : "Couldn't generate quick card — check your API key and try again."); }
     setFetching(false);
   };
 

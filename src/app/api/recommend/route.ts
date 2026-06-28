@@ -52,8 +52,13 @@ Respond in JSON only (no markdown, no backticks, no preamble):
 
 Recommend 2–4 top picks from the actual inventory. Be species-specific and condition-specific.`;
 
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      return NextResponse.json({ error: "GEMINI_API_KEY is not set in environment variables." }, { status: 500 });
+    }
+
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +81,8 @@ Recommend 2–4 top picks from the actual inventory. Be species-specific and con
 
     return NextResponse.json(validated.data);
   } catch (err) {
-    console.error("Recommendation error:", err);
-    return NextResponse.json({ error: "Failed to get recommendations." }, { status: 500 });
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("recommend error:", errMsg);
+    return NextResponse.json({ error: errMsg || "Failed — check server logs." }, { status: 500 });
   }
 }

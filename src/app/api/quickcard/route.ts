@@ -67,8 +67,13 @@ Respond in JSON only (no markdown, no backticks, no preamble):
 
 Rules: only use lures from inventory, 2-3 time blocks, 2-4 rods per block, mood must be one of: dawn/morning/midday/afternoon/evening, role must be one of: PRIMARY/FOLLOW-UP/SITUATIONAL/CLEANUP, decision rule color must be one of: green/yellow/orange/blue.`;
 
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey) {
+      return NextResponse.json({ error: "GEMINI_API_KEY is not set in environment variables." }, { status: 500 });
+    }
+
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -91,7 +96,8 @@ Rules: only use lures from inventory, 2-3 time blocks, 2-4 rods per block, mood 
 
     return NextResponse.json(validated.data);
   } catch (err) {
-    console.error("Quick card error:", err);
-    return NextResponse.json({ error: "Failed to generate quick card." }, { status: 500 });
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("quickcard error:", errMsg);
+    return NextResponse.json({ error: errMsg || "Failed — check server logs." }, { status: 500 });
   }
 }
