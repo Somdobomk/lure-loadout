@@ -72,3 +72,50 @@ select option { background: #282828; color: #ebdbb2; }
   border-color: #fe8019 !important;
   font-weight: 600 !important;
 }
+
+/* ── Clerk UserButton popover / dropdown ─────────────────────────────────
+   The UserButton menu inherits colorBackground from ClerkProvider which
+   we've set to #282828. The popover card needs a lighter surface so the
+   menu items are visible against it. */
+
+/* Popover card container */
+.cl-userButtonPopoverCard,
+.cl-card,
+.cl-popoverBox {
+  background-color: #32302f !important;
+  border: 1px solid #504945 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Menu items */
+.cl-userButtonPopoverActionButton,
+.cl-menuItem,
+.cl-userPreviewSecondaryIdentifier {
+  color: #ebdbb2 !important;
+}
+
+/* Menu item hover state */
+.cl-userButtonPopoverActionButton:hover,
+.cl-menuItem:hover {
+  background-color: #3c3836 !important;
+}
+
+/* Menu item icons */
+.cl-userButtonPopoverActionButtonIcon {
+  color: #a89984 !important;
+}
+
+/* Divider between menu sections */
+.cl-userButtonPopoverFooter,
+.cl-dividerLine {
+  border-color: #3c3836 !important;
+}
+
+/* User name and email in the popover header */
+.cl-userPreviewMainIdentifier {
+  color: #ebdbb2 !important;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  color: #a89984 !important;
+}
