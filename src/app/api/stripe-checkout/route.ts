@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { stripe, PRICE_ID, APP_URL } from "@/lib/stripe";
 
@@ -6,14 +6,15 @@ export const dynamic = "force-dynamic";
 
 export async function POST() {
   try {
-    const { userId, sessionClaims } = await auth();
+    const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const appUrl = APP_URL();
     const priceId = PRICE_ID();
 
     const client = stripe();
-    const email = sessionClaims?.email as string | undefined;
+    const user = await currentUser();
+    const email = user?.emailAddresses?.[0]?.emailAddress;
 
     const session = await client.checkout.sessions.create({
       mode: "subscription",
