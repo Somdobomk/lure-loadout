@@ -107,15 +107,28 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
     clarity: "Clear", weather: "Sunny & Calm", season: "Summer",
     timeOfDay: "Morning", species: targetSpecies === "All Species" ? "Bass" : targetSpecies, notes: "",
   });
-  const [card, setCard]         = useState<QuickCardType | null>(null);
-  const [fetching, setFetching] = useState(false);
-  const [error, setError]       = useState("");
+  const [card, setCard]           = useState<QuickCardType | null>(null);
+  const [fetching, setFetching]   = useState(false);
+  const [progress, setProgress]   = useState("");
+  const [error, setError]         = useState("");
+  const [saving, setSaving]       = useState(false);
+  const [saveMsg, setSaveMsg]     = useState("");
 
   const set = (key: keyof Conditions, val: string) => setConditions((c) => ({ ...c, [key]: val }));
 
   const generate = async () => {
     if (!lures.length) { setError("Add some lures to your inventory first."); return; }
-    setFetching(true); setCard(null); setError("");
+    setFetching(true); setCard(null); setError(""); setProgress("Reviewing your tackle inventory…");
+    const progressSteps = [
+      { delay: 3000,  msg: "Building your time-blocked game plan…" },
+      { delay: 8000,  msg: "Selecting the best 4-rod loadout…" },
+      { delay: 15000, msg: "Writing your decision rules…" },
+      { delay: 25000, msg: "Finalizing your Quick Card…" },
+      { delay: 40000, msg: "This one's taking a moment — AI is working hard…" },
+    ];
+    const timers = progressSteps.map(({ delay, msg }) =>
+      setTimeout(() => setProgress(msg), delay)
+    );
     try {
       const res = await fetch("/api/quickcard", {
         method: "POST",
@@ -128,6 +141,8 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
       }
       setCard(await res.json());
     } catch (err) { setError(err instanceof Error ? err.message : "Couldn't generate quick card — check your API key and try again."); }
+    timers.forEach(clearTimeout);
+    setProgress("");
     setFetching(false);
   };
 
@@ -182,6 +197,87 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
   }
 
   // ── Subscribed view ───────────────────────────────────────────────────────
+  const saveCard = async () => {
+    if (!card) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LureLoadout Quick Card</title>
+<style>
+  body { background: #1d2021; color: #ebdbb2; font-family: system-ui, sans-serif; max-width: 500px; margin: 0 auto; padding: 16px; }
+  h1 { color: #fabd2f; font-size: 18px; margin-bottom: 4px; }
+  .meta { color: #8ec07c; font-size: 13px; margin-bottom: 16px; }
+  .block { background: #282828; border: 1px solid #3c3836; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .block-header { padding: 10px 14px; border-bottom: 1px solid #3c3836; }
+  .block-time { font-weight: bold; font-size: 14px; color: #fabd2f; }
+  .block-label { font-size: 11px; color: #928374; text-transform: uppercase; letter-spacing: 1px; }
+  .block-focus { padding: 8px 14px; font-size: 12px; color: #a89984; border-bottom: 1px solid #3c3836; }
+  .rod { display: flex; gap: 8px; padding: 8px 14px; border-bottom: 1px solid #1d2021; }
+  .rod-num { width: 22px; height: 22px; border-radius: 5px; background: #689d6a; color: #1d2021; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .rod-name { font-size: 13px; font-weight: bold; color: #ebdbb2; }
+  .rod-color { font-size: 12px; color: #fabd2f; }
+  .rod-tips { font-size: 11px; color: #a89984; margin: 2px 0 0; padding-left: 10px; }
+  .decisions { background: #282828; border: 1px solid #3c3836; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+  .decisions h3 { font-size: 11px; color: #928374; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px; }
+  .rule { margin-bottom: 6px; }
+  .rule-type { font-weight: bold; font-size: 13px; color: #8ec07c; }
+  .rule-meaning { font-size: 12px; color: #ebdbb2; }
+  .rule-if { font-size: 11px; color: #928374; }
+  .tip { background: #282828; border: 1px solid #3c3836; border-left: 3px solid #d79921; border-radius: 10px; padding: 10px 14px; }
+  .tip-label { font-size: 11px; color: #d79921; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .strategy { font-size: 13px; color: #a89984; margin: 8px 0 0; }
+  .footer { text-align: center; margin-top: 16px; font-size: 10px; color: #504945; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+<h1>${card.headline}</h1>
+<div class="meta">Best window: ${card.bestWindow}</div>
+${card.timeBlocks.map(b => `
+<div class="block">
+  <div class="block-header">
+    <div class="block-time">${b.time}</div>
+    <div class="block-label">${b.label}</div>
+  </div>
+  <div class="block-focus">${b.focus}</div>
+  ${b.rods.map(r => `
+  <div class="rod">
+    <div class="rod-num">${r.number}</div>
+    <div>
+      <div class="rod-name">${r.lure} <span class="rod-color">${r.color}</span></div>
+      <div class="rod-tips">${r.tips.join(" · ")}</div>
+    </div>
+  </div>`).join("")}
+</div>`).join("")}
+${card.decisionRules.length > 0 ? `
+<div class="decisions">
+  <h3>Decision rules</h3>
+  ${card.decisionRules.map(r => `<div class="rule"><span class="rule-type">${r.lureType}</span> <span class="rule-meaning">${r.meaning}</span><div class="rule-if">${r.ifItWorks}</div></div>`).join("")}
+</div>` : ""}
+${card.proTip ? `<div class="tip"><div class="tip-label">Pro tip</div>${card.proTip}</div>` : ""}
+<div class="strategy">Strategy: ${card.oneLineStrategy}</div>
+<div class="footer">LURELOADOUT · QUICK CARD · ${new Date().toLocaleDateString()}</div>
+</body></html>`;
+
+      const blob = new Blob([html], { type: "text/html" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `lureloadout-quickcard-${new Date().toISOString().split("T")[0]}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setSaveMsg("Quick Card saved!");
+      setTimeout(() => setSaveMsg(""), 3000);
+    } catch {
+      setSaveMsg("Save failed — try again.");
+    }
+    setSaving(false);
+  };
+
   return (
     <div>
       {/* Pro badge */}
@@ -212,9 +308,15 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
             <input className={inputCls} value={conditions.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Location, water temp, structure…" />
           </div>
         </div>
+        {fetching && (
+          <p className="text-gb-faint text-xs text-center mb-3">
+            Quick Cards take up to a minute — feel free to switch tabs while we build your game plan.
+          </p>
+        )}
         <button onClick={generate} disabled={fetching}
-          className="w-full py-3 rounded-xl bg-gb-green2 text-gb-bg font-semibold text-sm hover:bg-gb-green disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm">
-          {fetching ? "Building your game plan… 🃏" : "Generate Quick Card"}
+          className="w-full py-3 rounded-xl bg-gb-green2 text-gb-bg font-semibold text-sm hover:bg-gb-green disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center justify-center gap-2">
+          {fetching && <span className="inline-block w-3.5 h-3.5 border-2 border-gb-bg/30 border-t-gb-bg rounded-full animate-spin" />}
+          {fetching ? (progress || "Starting…") : "Generate Quick Card"}
         </button>
       </div>
 
@@ -268,6 +370,23 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
               <div className="text-gb-muted text-sm leading-relaxed">{card.proTip}</div>
             </div>
           )}
+
+          {/* Save to device */}
+          <div className="flex flex-col items-center gap-2 pt-2">
+            <button
+              onClick={saveCard}
+              disabled={saving}
+              className="w-full py-2.5 rounded-xl border border-gb-border2 text-gb-blue text-sm font-semibold hover:bg-gb-border2 disabled:opacity-40 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              {saving ? "Saving…" : "Save Quick Card to Device"}
+            </button>
+            {saveMsg && (
+              <p className={`text-xs font-medium ${saveMsg.includes("failed") ? "text-gb-red" : "text-gb-green"}`}>
+                {saveMsg}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -20,15 +20,25 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
     clarity: "Clear", weather: "Sunny & Calm", season: "Summer",
     timeOfDay: "Morning", species: targetSpecies === "All Species" ? "Bass" : targetSpecies, notes: "",
   });
-  const [rec, setRec]         = useState<Recommendations | null>(null);
+  const [rec, setRec]           = useState<Recommendations | null>(null);
   const [fetching, setFetching] = useState(false);
-  const [error, setError]     = useState("");
+  const [progress, setProgress] = useState("");
+  const [error, setError]       = useState("");
 
   const set = (key: keyof Conditions, val: string) => setConditions((c) => ({ ...c, [key]: val }));
 
   const fetchRecs = async () => {
     if (!lures.length) { setError("Add some lures to your inventory first."); return; }
-    setFetching(true); setRec(null); setError("");
+    setFetching(true); setRec(null); setError(""); setProgress("Analyzing your lure inventory…");
+    const progressSteps = [
+      { delay: 2000,  msg: "Checking today's conditions…" },
+      { delay: 5000,  msg: "Matching lures to the conditions…" },
+      { delay: 10000, msg: "Almost there — finalizing picks…" },
+      { delay: 20000, msg: "Taking a little longer than usual — still working…" },
+    ];
+    const timers = progressSteps.map(({ delay, msg }) =>
+      setTimeout(() => setProgress(msg), delay)
+    );
     try {
       const res = await fetch("/api/recommend", {
         method: "POST",
@@ -41,6 +51,8 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
       }
       setRec(await res.json());
     } catch (err) { setError(err instanceof Error ? err.message : "Couldn't get recommendations — check your API key and try again."); }
+    timers.forEach(clearTimeout);
+    setProgress("");
     setFetching(false);
   };
 
@@ -116,9 +128,15 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
             <input className={inputCls} value={conditions.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Water temp, structure…" />
           </div>
         </div>
+        {fetching && (
+          <p className="text-gb-faint text-xs text-center mb-3">
+            You can switch tabs while we work — your picks will be ready when you return.
+          </p>
+        )}
         <button onClick={fetchRecs} disabled={fetching}
           className="w-full py-3 rounded-xl bg-gb-green2 text-gb-bg font-semibold text-sm transition-all hover:bg-gb-green disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
-          {fetching ? "Checking your tackle box… 🎣" : "Get Today's Recommendations"}
+          {fetching && <span className="inline-block w-3.5 h-3.5 border-2 border-gb-bg/30 border-t-gb-bg rounded-full animate-spin" />}
+          {fetching ? (progress || "Starting…") : "Get Today's Recommendations"}
         </button>
       </div>
 

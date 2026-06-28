@@ -199,3 +199,23 @@ select option { background: #282828; color: #ebdbb2; }
 .cl-footerActionLink:hover {
   color: #b8bb26 !important;
 }
+
+/* ── Clerk profile "Upload" button fix ──────────────────────────────────────
+   The upload button inside Manage Account > Profile blends into dark bg */
+.cl-userProfile-root .cl-profileSectionPrimaryButton,
+.cl-userProfile-root .cl-fileDropAreaBox,
+.cl-userProfile-root .cl-fileDropAreaBoxAction,
+.cl-avatarImageActionsUpload,
+.cl-profileSectionPrimaryButton__profileImage,
+.cl-button__unstyled {
+  background-color: #3c3836 !important;
+  color: #ebdbb2 !important;
+  border: 1px solid #504945 !important;
+}
+
+.cl-userProfile-root .cl-profileSectionPrimaryButton:hover,
+.cl-avatarImageActionsUpload:hover {
+  background-color: #504945 !important;
+  border-color: #689d6a !important;
+  color: #8ec07c !important;
+}
