@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Gruvbox Dark Hard */
+  --color-gb-bg:       #1d2021;
+  --color-gb-surface:  #282828;
+  --color-gb-surface2: #32302f;
+  --color-gb-border:   #3c3836;
+  --color-gb-border2:  #504945;
+  --color-gb-fg:       #ebdbb2;
+  --color-gb-fg1:      #d5c4a1;
+  --color-gb-fg2:      #bdae93;
+  --color-gb-muted:    #a89984;
+  --color-gb-faint:    #928374;
+  --color-gb-dark:     #7c6f64;
+  --color-gb-yellow:   #fabd2f;
+  --color-gb-yellow2:  #d79921;
+  --color-gb-green:    #8ec07c;
+  --color-gb-green2:   #689d6a;
+  --color-gb-red:      #fb4934;
+  --color-gb-red2:     #cc241d;
+  --color-gb-blue:     #83a598;
+  --color-gb-orange:   #fe8019;
+  --color-gb-purple:   #d3869b;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: #1d2021;
+  color: #ebdbb2;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, select, .font-mono { font-family: var(--font-mono); }
+
+select option { background: #282828; color: #ebdbb2; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3c3836; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #504945; }
+
+*:focus-visible { outline: 2px solid #689d6a; outline-offset: 2px; border-radius: 6px; }
+
+.card-surface {
+  background: #282828;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.header-glass {
+  background: rgba(40, 40, 40, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(80, 73, 69, 0.5);
+  box-shadow: 0 1px 20px rgba(0,0,0,0.4);
+}
+
+/* ── Clerk UI overrides ──────────────────────────────────────────────────── */
+[data-localization-key="badge__primary"],
+.cl-badge[data-localization-key="badge__primary"],
+.cl-internal-badge__primary,
+.cl-badge__primary {
+  background-color: #fe8019 !important;
+  color: #1d2021 !important;
+  border-color: #fe8019 !important;
+  font-weight: 600 !important;
+}
+
+/* ── Clerk UserButton popover / dropdown ─────────────────────────────────
+   The UserButton menu inherits colorBackground from ClerkProvider which
+   we've set to #282828. The popover card needs a lighter surface so the
+   menu items are visible against it. */
+
+/* Popover card container */
+.cl-userButtonPopoverCard,
+.cl-card,
+.cl-popoverBox {
+  background-color: #32302f !important;
+  border: 1px solid #504945 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Menu items */
+.cl-userButtonPopoverActionButton,
+.cl-menuItem,
+.cl-userPreviewSecondaryIdentifier {
+  color: #ebdbb2 !important;
+}
+
+/* Menu item hover state */
+.cl-userButtonPopoverActionButton:hover,
+.cl-menuItem:hover {
+  background-color: #3c3836 !important;
+}
+
+/* Menu item icons */
+.cl-userButtonPopoverActionButtonIcon {
+  color: #a89984 !important;
+}
+
+/* Divider between menu sections */
+.cl-userButtonPopoverFooter,
+.cl-dividerLine {
+  border-color: #3c3836 !important;
+}
+
+/* User name and email in the popover header */
+.cl-userPreviewMainIdentifier {
+  color: #ebdbb2 !important;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  color: #a89984 !important;
+}
+
+/* ── Clerk Sign In / Sign Up social buttons (Apple, Google, etc.) ─────────
+   Social buttons blend into the dark background — give them a visible
+   surface with a border so they stand out on the Gruvbox dark theme. */
+
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsIconButton {
+  background-color: #32302f !important;
+  border: 1px solid #504945 !important;
+  color: #ebdbb2 !important;
+}
+
+.cl-socialButtonsBlockButton:hover,
+.cl-socialButtonsIconButton:hover {
+  background-color: #3c3836 !important;
+  border-color: #689d6a !important;
+}
+
+/* Button label text */
+.cl-socialButtonsBlockButtonText {
+  color: #ebdbb2 !important;
+}
+
+/* Social button icons (Apple/Google SVGs) */
+.cl-socialButtonsBlockButtonArrow,
+.cl-socialButtonsBlockButton svg,
+.cl-socialButtonsIconButton svg {
+  color: #ebdbb2 !important;
+  fill: #ebdbb2 !important;
+}
+
+/* "Or continue with" divider text */
+.cl-dividerText {
+  color: #a89984 !important;
+}
+
+.cl-dividerLine {
+  background-color: #3c3836 !important;
+}
+
+/* Main card / form container on sign in/up pages */
+.cl-card {
+  background-color: #282828 !important;
+  border: 1px solid #3c3836 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Form input fields */
+.cl-formFieldInput {
+  background-color: #1d2021 !important;
+  border-color: #3c3836 !important;
+  color: #ebdbb2 !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: #689d6a !important;
+}
+
+/* Form labels */
+.cl-formFieldLabel {
+  color: #a89984 !important;
+}
+
+/* Header title and subtitle */
+.cl-headerTitle {
+  color: #ebdbb2 !important;
+}
+
+.cl-headerSubtitle {
+  color: #a89984 !important;
+}
+
+/* Footer links */
+.cl-footerActionLink {
+  color: #8ec07c !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #b8bb26 !important;
+}
