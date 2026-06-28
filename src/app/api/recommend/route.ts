@@ -11,7 +11,7 @@ const RequestSchema = z.object({
   aiContext:  z.string().optional(),
 });
 
-const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
 
 export async function POST(req: NextRequest) {
   // 1. Validate API key first
