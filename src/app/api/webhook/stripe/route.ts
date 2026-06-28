@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const sig  = req.headers.get("stripe-signature")!;
 
   try {
-    const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    const event = stripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
     console.log("Stripe webhook:", event.type);
     return NextResponse.json({ received: true });
   } catch (err) {

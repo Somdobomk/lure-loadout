@@ -10,9 +10,9 @@ export async function POST(req: Request) {
 
   const { customerId } = await req.json();
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await stripe().billingPortal.sessions.create({
     customer: customerId,
-    return_url: APP_URL,
+    return_url: APP_URL(),
   });
 
   return NextResponse.json({ url: session.url });

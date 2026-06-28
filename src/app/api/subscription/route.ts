@@ -4,6 +4,14 @@ import { stripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
+// ── Dev bypass ───────────────────────────────────────────────────────────
+// Add your email(s) to NEXT_PUBLIC_DEV_EMAILS in .env.local to skip Stripe
+// e.g. NEXT_PUBLIC_DEV_EMAILS=you@example.com,partner@example.com
+const DEV_EMAILS = (process.env.NEXT_PUBLIC_DEV_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 export async function GET() {
   const { userId, sessionClaims } = await auth();
   if (!userId) return NextResponse.json({ subscribed: false });
@@ -11,12 +19,18 @@ export async function GET() {
   const email = sessionClaims?.email as string | undefined;
   if (!email) return NextResponse.json({ subscribed: false });
 
+  // Bypass Stripe check for dev accounts
+  if (DEV_EMAILS.includes(email.toLowerCase())) {
+    return NextResponse.json({ subscribed: true, customerId: null, devBypass: true });
+  }
+
   try {
-    const customers = await stripe.customers.list({ email, limit: 1 });
+    const client = stripe();
+    const customers = await client.customers.list({ email, limit: 1 });
     if (!customers.data.length) return NextResponse.json({ subscribed: false });
 
     const customer = customers.data[0];
-    const subscriptions = await stripe.subscriptions.list({
+    const subscriptions = await client.subscriptions.list({
       customer: customer.id,
       status: "active",
       limit: 1,
