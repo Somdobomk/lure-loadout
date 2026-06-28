@@ -115,14 +115,14 @@ export const QuickCardRodSchema = z.object({
   number: z.number(),
   lure:   z.string(),
   color:  z.string(),
-  role:   z.enum(["PRIMARY", "FOLLOW-UP", "SITUATIONAL", "CLEANUP"]),
+  role:   z.string().transform(s => s.toUpperCase().replace("-", "-")).pipe(z.enum(["PRIMARY", "FOLLOW-UP", "SITUATIONAL", "CLEANUP"])).catch("SITUATIONAL"),
   tips:   z.array(z.string()).default([]),
 });
 
 export const QuickCardTimeBlockSchema = z.object({
   time:  z.string(),
   label: z.string(),
-  mood:  z.enum(["dawn", "morning", "midday", "afternoon", "evening"]),
+  mood:  z.string().transform(s => s.toLowerCase()).pipe(z.enum(["dawn", "morning", "midday", "afternoon", "evening"])).catch("morning"),
   focus: z.string(),
   rods:  z.array(QuickCardRodSchema).default([]),
 });
@@ -131,15 +131,15 @@ export const QuickCardDecisionRuleSchema = z.object({
   lureType:  z.string(),
   meaning:   z.string(),
   ifItWorks: z.string(),
-  color:     z.enum(["green", "yellow", "orange", "blue"]),
+  color:     z.string().transform(s => s.toLowerCase()).pipe(z.enum(["green", "yellow", "orange", "blue"])).catch("green"),
 });
 
 export const QuickCardSchema = z.object({
-  headline:       z.string(),
-  bestWindow:     z.string(),
+  headline:       z.string().default("Game Plan"),
+  bestWindow:     z.string().default("Best available window"),
   timeBlocks:     z.array(QuickCardTimeBlockSchema).default([]),
   decisionRules:  z.array(QuickCardDecisionRuleSchema).default([]),
-  oneLineStrategy: z.string(),
+  oneLineStrategy: z.string().default("Find → Position → Slow Down → Finish"),
   proTip:         z.string().default(""),
 });
 
@@ -157,12 +157,33 @@ export function safeParseJson<T>(
   context?: string
 ): { success: true; data: T } | { success: false; error: string } {
   try {
-    const json = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    // Strip markdown fences, leading/trailing whitespace
+    let cleaned = raw
+      .replace(/```json\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
+    // If Gemini wrapped the JSON in extra text, extract the JSON object/array
+    const firstBrace  = cleaned.indexOf("{");
+    const firstBracket = cleaned.indexOf("[");
+    const start = firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)
+      ? firstBrace : firstBracket;
+    if (start > 0) cleaned = cleaned.slice(start);
+
+    const lastBrace   = cleaned.lastIndexOf("}");
+    const lastBracket = cleaned.lastIndexOf("]");
+    const end = Math.max(lastBrace, lastBracket);
+    if (end !== -1 && end < cleaned.length - 1) cleaned = cleaned.slice(0, end + 1);
+
+    const json = JSON.parse(cleaned);
     const result = schema.safeParse(json);
     if (result.success) return { success: true, data: result.data };
     const msg = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+    console.error(`safeParseJson (${context}): validation failed — ${msg}`);
+    console.error(`safeParseJson raw text snippet:`, raw.slice(0, 500));
     return { success: false, error: `Validation failed${context ? ` (${context})` : ""}: ${msg}` };
-  } catch {
+  } catch (err) {
+    console.error(`safeParseJson (${context}): JSON parse error —`, err, "raw:", raw.slice(0, 300));
     return { success: false, error: `JSON parse error${context ? ` (${context})` : ""}` };
   }
 }

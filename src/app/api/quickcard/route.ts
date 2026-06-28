@@ -64,9 +64,12 @@ Respond in JSON only (no markdown, no backticks, no preamble):
   "proTip": "one tip"
 }
 
-mood must be one of: dawn/morning/midday/afternoon/evening
-role must be one of: PRIMARY/FOLLOW-UP/SITUATIONAL/CLEANUP
-decision rule color must be one of: green/yellow/orange/blue`;
+STRICT RULES — these values must match exactly or the response will be rejected:
+- mood field: must be exactly one of these lowercase strings: dawn, morning, midday, afternoon, evening
+- role field: must be exactly one of these uppercase strings: PRIMARY, FOLLOW-UP, SITUATIONAL, CLEANUP
+- color field in decisionRules: must be exactly one of these lowercase strings: green, yellow, orange, blue
+- All fields shown in the JSON structure above are required — do not omit any
+- Output raw JSON only — no markdown, no code fences, no explanation text before or after`;
 
   try {
     // Quick Card uses the primary model — time-blocked game plans need
@@ -77,12 +80,24 @@ decision rule color must be one of: green/yellow/orange/blue`;
       console.log("quickcard: used fallback model", result.model);
     }
 
-    const validated = safeParseJson(QuickCardSchema, result.text, "quick card");
+    let validated = safeParseJson(QuickCardSchema, result.text, "quick card");
+
+    // If primary model returned bad format, retry with fallback model
+    if (!validated.success && !result.usedFallback) {
+      console.warn("quickcard: primary model returned bad format, retrying with fallback");
+      try {
+        const retry = await callGemini(prompt, MODELS.fallback, { maxOutputTokens: 2048, temperature: 0.3 });
+        validated = safeParseJson(QuickCardSchema, retry.text, "quick card retry");
+      } catch {
+        // ignore retry error, fall through to original error
+      }
+    }
+
     if (!validated.success) {
-      console.error("quickcard: schema validation failed:", validated.error);
+      console.error("quickcard: schema validation failed after retry:", validated.error);
       return NextResponse.json(
-        { error: "The AI returned an unexpected format. Please try again." },
-        { status: 500 }
+        { error: "The AI fishing assistant is temporarily busy. Please try again in a moment." },
+        { status: 503 }
       );
     }
 
