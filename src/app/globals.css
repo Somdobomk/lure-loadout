@@ -119,3 +119,83 @@ select option { background: #282828; color: #ebdbb2; }
 .cl-userPreviewSecondaryIdentifier {
   color: #a89984 !important;
 }
+
+/* ── Clerk Sign In / Sign Up social buttons (Apple, Google, etc.) ─────────
+   Social buttons blend into the dark background — give them a visible
+   surface with a border so they stand out on the Gruvbox dark theme. */
+
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsIconButton {
+  background-color: #32302f !important;
+  border: 1px solid #504945 !important;
+  color: #ebdbb2 !important;
+}
+
+.cl-socialButtonsBlockButton:hover,
+.cl-socialButtonsIconButton:hover {
+  background-color: #3c3836 !important;
+  border-color: #689d6a !important;
+}
+
+/* Button label text */
+.cl-socialButtonsBlockButtonText {
+  color: #ebdbb2 !important;
+}
+
+/* Social button icons (Apple/Google SVGs) */
+.cl-socialButtonsBlockButtonArrow,
+.cl-socialButtonsBlockButton svg,
+.cl-socialButtonsIconButton svg {
+  color: #ebdbb2 !important;
+  fill: #ebdbb2 !important;
+}
+
+/* "Or continue with" divider text */
+.cl-dividerText {
+  color: #a89984 !important;
+}
+
+.cl-dividerLine {
+  background-color: #3c3836 !important;
+}
+
+/* Main card / form container on sign in/up pages */
+.cl-card {
+  background-color: #282828 !important;
+  border: 1px solid #3c3836 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Form input fields */
+.cl-formFieldInput {
+  background-color: #1d2021 !important;
+  border-color: #3c3836 !important;
+  color: #ebdbb2 !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: #689d6a !important;
+}
+
+/* Form labels */
+.cl-formFieldLabel {
+  color: #a89984 !important;
+}
+
+/* Header title and subtitle */
+.cl-headerTitle {
+  color: #ebdbb2 !important;
+}
+
+.cl-headerSubtitle {
+  color: #a89984 !important;
+}
+
+/* Footer links */
+.cl-footerActionLink {
+  color: #8ec07c !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #b8bb26 !important;
+}
