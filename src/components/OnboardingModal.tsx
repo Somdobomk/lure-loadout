@@ -2,6 +2,7 @@
 
 import { Button } from "./Button";
 import { TextField, SelectField } from "./Fields";
+import { Dialog } from "./catalyst";
 import { useState } from "react";
 import { TargetSpecies, SPECIES_PROFILES } from "@/lib/types";
 

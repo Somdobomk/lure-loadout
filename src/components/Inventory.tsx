@@ -5,6 +5,7 @@ import { Lure, SpeciesProfile, SIZES, LURE_WEIGHTS, WEIGHTED_LURE_TYPES } from "
 import { ImportLureSchema } from "@/lib/schemas";
 import { Button } from "./Button";
 import { TextField, SelectField } from "./Fields";
+import { Dialog, DialogTitle, DialogDescription, DialogActions } from "./catalyst";
 import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 interface Props {
@@ -139,19 +140,15 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
 
   return (
     <div>
-      {/* Confirm dialog */}
-      {confirmPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-gb-surface border border-gb-red2/50 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <div className="text-gb-red font-bold text-sm mb-2">⚠️ Confirm delete</div>
-            <div className="text-gb-fg1 text-sm mb-5 leading-relaxed">{confirmPrompt.message}</div>
-            <div className="flex gap-3">
-              <Button color="danger" size="full" onClick={confirmPrompt.onConfirm}>Delete</Button>
-              <Button variant="outline" onClick={() => setConfirmPrompt(null)}>Cancel</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Catalyst Dialog for confirmations */}
+      <Dialog open={!!confirmPrompt} onClose={() => setConfirmPrompt(null)} size="sm">
+        <DialogTitle>⚠️ Confirm delete</DialogTitle>
+        <DialogDescription>{confirmPrompt?.message}</DialogDescription>
+        <DialogActions>
+          <Button variant="outline" onClick={() => setConfirmPrompt(null)}>Cancel</Button>
+          <Button color="danger" onClick={() => { confirmPrompt?.onConfirm(); }}>Delete</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ── Top tabs: All / Restock ── */}
       <div className="flex gap-1 p-1 bg-gb-surface border border-gb-border rounded-2xl mb-4">
