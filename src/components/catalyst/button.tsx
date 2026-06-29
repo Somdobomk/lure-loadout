@@ -41,6 +41,20 @@ const styles = {
     'data-hover:border-gb-border2 data-hover:text-gb-fg',
     'data-active:bg-gb-border/20',
   ],
+  outlineBlue: [
+    'border-gb-border text-gb-blue',
+    'data-hover:border-gb-blue data-hover:text-gb-blue',
+    'data-active:bg-gb-blue/10',
+  ],
+  outlineDanger: [
+    'border-gb-red2/50 text-gb-red',
+    'data-hover:border-gb-red2 data-hover:bg-gb-red2/10',
+    'data-active:bg-gb-red2/20',
+  ],
+  outlineGreen: [
+    'border-gb-green2/50 text-gb-green',
+    'data-hover:border-gb-green2 data-hover:bg-gb-green2/10',
+  ],
   plain: [
     'border-transparent text-gb-muted',
     'data-hover:bg-gb-border/40 data-hover:text-gb-fg',
@@ -75,7 +89,7 @@ const colors = {
 }
 
 type Variant = 'solid' | 'outline' | 'plain'
-type Color   = keyof typeof colors
+type Color   = keyof typeof colors | 'blue' | 'green'  // outline-only colors
 
 type ButtonProps = {
   variant?: Variant
@@ -97,12 +111,20 @@ export const Button = forwardRef(function Button(
   { variant = 'solid', color = 'primary', size = 'md', className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
+  // Resolve classes — outline variant supports color overrides
+  const outlineColor =
+    color === 'blue'   ? styles.outlineBlue   :
+    color === 'danger' ? styles.outlineDanger  :
+    color === 'green'  ? styles.outlineGreen   :
+    styles.outline
+
   const classes = clsx(
     className,
     styles.base,
     sizeMap[size],
-    variant === 'outline' ? styles.outline :
-    variant === 'plain'   ? styles.plain   : [styles.solid, colors[color]],
+    variant === 'outline' ? outlineColor :
+    variant === 'plain'   ? styles.plain :
+    [styles.solid, colors[color as keyof typeof colors] ?? colors.primary],
   )
 
   return 'href' in props ? (
