@@ -13,7 +13,7 @@ import OnboardingModal from "./OnboardingModal";
 import SettingsModal from "./SettingsModal";
 import HelpPage from "./HelpPage";
 import MigrationBanner from "./MigrationBanner";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 type View = "inventory" | "rodsreels" | "recommendations" | "quickcard" | "trips" | "help";
 
@@ -97,6 +97,9 @@ export default function LureLoadout() {
   const { state, update, backupToCloud, dismissMigration } = useSync();
   const [view, setView] = useState<View>("inventory");
   const [showSettings, setShowSettings] = useState(false);
+  const [navVisible, setNavVisible]     = useState(true);
+  const lastScrollY  = useRef(0);
+  const scrollRef    = useRef<HTMLDivElement>(null);
 
   const { lures, rods, reels, trips, targetSpecies, onboarded,
           loading, syncing, syncError, lastSynced, hasPendingMigration } = state;
@@ -112,6 +115,18 @@ export default function LureLoadout() {
   const saveRods   = (v: typeof rods)   => update("rods",   v);
   const saveReels  = (v: typeof reels)  => update("reels",  v);
   const saveTrips  = (v: typeof trips)  => update("trips",  v);
+
+  // Hide nav on scroll down, show on scroll up
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const currentY = el.scrollTop;
+    const diff = currentY - lastScrollY.current;
+    if (diff > 8)  setNavVisible(false);   // scrolling down — hide
+    if (diff < -8) setNavVisible(true);    // scrolling up  — show
+    if (currentY < 50) setNavVisible(true); // near top — always show
+    lastScrollY.current = currentY;
+  }, []);
 
   const VIEW_TITLES: Record<View, string> = {
     inventory:       "Lure inventory",
@@ -200,7 +215,9 @@ export default function LureLoadout() {
 
         {/* Scrollable content area */}
         <div
+          ref={scrollRef}
           className="flex-1 overflow-y-auto"
+          onScroll={handleScroll}
           style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
         >
           <div className="max-w-2xl mx-auto px-4 pt-5">
@@ -240,9 +257,12 @@ export default function LureLoadout() {
           </div>
         </div>
 
-        {/* ── Pocket-style bottom tab bar ─────────────────────────────── */}
+        {/* ── Pocket-style bottom tab bar — hides on scroll down, shows on scroll up ── */}
         <div
-          className="shrink-0 bg-gb-surface border-t border-gb-border"
+          className={[
+            "shrink-0 bg-gb-surface border-t border-gb-border transition-transform duration-300 ease-in-out",
+            navVisible ? "translate-y-0" : "translate-y-full",
+          ].join(" ")}
           style={{
             position: "sticky",
             bottom: 0,

@@ -12,6 +12,17 @@ interface Props {
 const labelCls = "block text-[11px] text-gb-faint font-semibold uppercase tracking-wider mb-1.5";
 const inputCls = "w-full px-3 py-2 bg-gb-bg border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all";
 
+
+function cacheAge(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  if (mins < 1)   return "just now";
+  if (mins < 60)  return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
 export default function DailyPicks({ lures, targetSpecies }: Props) {
   const { subscribed, loading, startCheckout, openPortal, customerId, checkoutError, clearCheckoutError } = useSubscription();
   const profile = SPECIES_PROFILES[targetSpecies];
@@ -25,12 +36,55 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
   const [progress, setProgress] = useState("");
   const [error, setError]       = useState("");
   const [usage, setUsage]       = useState<{ used: number; limit: number; remaining: number } | null>(null);
+  const [savedAt, setSavedAt]   = useState<string | null>(null);
+  const [picksSyncing, setPicksSyncing] = useState(false);
 
   useEffect(() => {
+    // Load usage counts
     fetch("/api/usage")
       .then(r => r.json())
       .then(d => { if (d.daily_picks) setUsage(d.daily_picks); })
       .catch(() => {});
+
+    // Load cached picks from Supabase
+    setPicksSyncing(true);
+    fetch("/api/picks-sync")
+      .then(r => r.json())
+      .then(d => {
+        if (d.picks && d.savedAt) {
+          const age = Date.now() - new Date(d.savedAt).getTime();
+          if (age < 24 * 60 * 60 * 1000) {
+            setRec(d.picks);
+            setSavedAt(d.savedAt);
+            if (d.conditions) setConditions(d.conditions);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPicksSyncing(false));
+
+    // Auto-fill location in Extra Notes if permission is available
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const { latitude, longitude } = pos.coords;
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+              { headers: { "User-Agent": "LureLoadout/1.0 (lureloadout.com)" } }
+            );
+            const data = await res.json();
+            const city  = data.address?.city || data.address?.town || data.address?.village || "";
+            const state = data.address?.state || "";
+            if (city || state) {
+              const loc = [city, state].filter(Boolean).join(", ");
+              setConditions(c => ({ ...c, notes: c.notes ? c.notes : `Location: ${loc}` }));
+            }
+          } catch {}
+        },
+        () => {} // permission denied — fail silently
+      );
+    }
   }, []);
 
   const set = (key: keyof Conditions, val: string) => setConditions((c) => ({ ...c, [key]: val }));
@@ -60,8 +114,17 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
         }
         throw new Error(errData.error || `Server error ${res.status}`);
       }
-      setRec(await res.json());
+      const newRec = await res.json();
+      setRec(newRec);
+      const now = new Date().toISOString();
+      setSavedAt(now);
       setUsage(u => u ? { ...u, used: u.used + 1, remaining: Math.max(0, u.remaining - 1) } : null);
+      // Save to Supabase in background
+      fetch("/api/picks-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ picks: newRec, conditions }),
+      }).catch(console.error);
     } catch (err) { setError(err instanceof Error ? err.message : "Couldn't get recommendations — check your API key and try again."); }
     timers.forEach(clearTimeout);
     setProgress("");
@@ -162,6 +225,10 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
       </div>
 
       {error && <div className="mb-4 px-4 py-3 bg-gb-red2/10 border border-gb-red2/40 text-gb-red text-sm rounded-xl">{error}</div>}
+
+      {picksSyncing && !rec && (
+        <div className="text-center py-6 text-gb-faint text-xs animate-pulse">Loading saved picks…</div>
+      )}
 
       {rec && (
         <div className="flex flex-col gap-3">

@@ -193,26 +193,50 @@ export default function QuickCard({ lures, targetSpecies }: Props) {
   };
 
   // ── Save as image ─────────────────────────────────────────────────────────
+  // Uses html-to-image (better WebKit/iOS support than html2canvas)
+  // Falls back to Web Share API on iOS where <a>.click() downloads don't work
   const saveAsImage = async () => {
     if (!cardRef.current || !card) return;
     setSaving(true); setSaveMsg("");
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(cardRef.current, {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(cardRef.current, {
         backgroundColor: "#1d2021",
-        scale: 2,              // 2× for retina quality
-        useCORS: true,
-        logging: false,
+        pixelRatio: 2,         // 2× retina quality
+        skipFonts: false,
       });
-      const link = document.createElement("a");
-      link.download = `lureloadout-quickcard-${new Date().toISOString().split("T")[0]}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      setSaveMsg("Image saved!");
-    } catch {
-      setSaveMsg("Save failed — try again.");
+
+      const filename = `lureloadout-quickcard-${new Date().toISOString().split("T")[0]}.png`;
+
+      // iOS Safari: use Web Share API to save to Photos
+      if (navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const res  = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], filename, { type: "image/png" });
+        await navigator.share({
+          title: "LureLoadout Quick Card",
+          text:  "My fishing game plan for today",
+          files: [file],
+        });
+        setSaveMsg("Shared successfully!");
+      } else {
+        // Desktop / Android: standard download link
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = dataUrl;
+        link.click();
+        setSaveMsg("Image saved!");
+      }
+    } catch (err) {
+      // User cancelled share is not an error
+      if (err instanceof Error && err.name === "AbortError") {
+        setSaveMsg("");
+      } else {
+        console.error("saveAsImage error:", err);
+        setSaveMsg("Save failed — try long-pressing the card to save instead.");
+      }
     }
-    setTimeout(() => setSaveMsg(""), 3000);
+    setTimeout(() => setSaveMsg(""), 4000);
     setSaving(false);
   };
 

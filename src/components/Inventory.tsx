@@ -259,15 +259,17 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
 
           {/* Toolbar */}
           <div className="flex items-center gap-2 mb-4">
-            <div className="flex gap-1.5 flex-wrap flex-1">
-              {types.map((t) => (
-                <button key={t} onClick={() => setFilter(t)}
-                  className={["px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150",
-                    filter === t ? "bg-gb-green2 text-gb-bg shadow-sm" : "bg-gb-surface text-gb-faint hover:text-gb-green border border-gb-border",
-                  ].join(" ")}>
-                  {t}
-                </button>
-              ))}
+            <div className="flex-1">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-gb-surface border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all appearance-none cursor-pointer"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23928374' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}
+              >
+                {types.map((t) => (
+                  <option key={t} value={t}>{t === "All" ? `All lures (${lures.length})` : `${t} (${lures.filter(l => l.type === t).length})`}</option>
+                ))}
+              </select>
             </div>
             <div className="flex gap-2 shrink-0">
               <button onClick={() => fileRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-gb-surface border border-gb-border text-gb-faint text-xs font-medium hover:border-gb-blue hover:text-gb-blue transition-all">⬆ Import</button>

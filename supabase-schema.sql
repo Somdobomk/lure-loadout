@@ -147,3 +147,18 @@ create policy "Users can manage their own usage"
   on ai_usage for all
   using  (user_id = requesting_user_id())
   with check (user_id = requesting_user_id());
+
+-- ── Daily Picks cache ───────────────────────────────────────────────────────
+create table if not exists daily_picks (
+  user_id    text primary key,
+  picks      jsonb  not null,
+  conditions jsonb  not null,
+  saved_at   timestamptz not null default now()
+);
+
+alter table daily_picks enable row level security;
+
+create policy "Users can manage their own daily picks"
+  on daily_picks for all
+  using  (user_id = requesting_user_id())
+  with check (user_id = requesting_user_id());
