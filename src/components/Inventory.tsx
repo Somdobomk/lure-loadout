@@ -190,7 +190,7 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
                   <div className="text-gb-faint text-xs mt-0.5">Out of stock or 1 remaining</div>
                 </div>
                 <button onClick={copyRestockList}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gb-surface border border-gb-border text-gb-muted text-xs font-medium hover:border-gb-border2 hover:text-gb-fg transition-colors" onClick={copyRestockList}>
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gb-surface border border-gb-border text-gb-muted text-xs font-medium hover:border-gb-border2 hover:text-gb-fg transition-colors">
                   <ListIcon />
                   {copied ? "Copied!" : "Copy list"}
                 </button>
