@@ -307,23 +307,35 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
                 <div className="col-span-2">
                   <TextField label="Lure name" placeholder="e.g. Rapala Original Floater" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
                 </div>
-                {([["Type", "type", profile.lureTypes], ["Color", "color", profile.colors]] as [string, string, string[]][]).map(([label, key, opts]) => (
-                  <div key={key}>
-                    <SelectField label={label} value={(form as Record<string, unknown>)[key] as string} onChange={(e) => { /* handled below */ }}>
-                      value={(form as Record<string, unknown>)[key] as string}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setForm((f) => ({
-                          ...f,
-                          [key]: val,
-                          ...(key === "type" && !WEIGHTED_LURE_TYPES.has(val) ? { weight: "" } : {}),
-                          ...(key === "type" && WEIGHTED_LURE_TYPES.has(val) && !(f as Record<string, unknown>).weight ? { weight: "1/4 oz" } : {}),
-                        }));
-                      }}>
-                      {opts.map((o) => <option key={o}>{o}</option>)}
-                    </select>
-                  </div>
-                ))}
+                {/* Type field */}
+                <div>
+                  <label className={labelCls}>Type</label>
+                  <select className={inputCls}
+                    value={form.type}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((f) => ({
+                        ...f,
+                        type: val,
+                        ...(WEIGHTED_LURE_TYPES.has(val) ? {} : { weight: "" }),
+                        ...(!WEIGHTED_LURE_TYPES.has(val) ? {} : (!f.weight ? { weight: "1/4 oz" } : {})),
+                      }));
+                    }}
+                  >
+                    {profile.lureTypes.map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                </div>
+
+                {/* Color field */}
+                <div>
+                  <label className={labelCls}>Color</label>
+                  <select className={inputCls}
+                    value={form.color}
+                    onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
+                  >
+                    {profile.colors.map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                </div>
 
                 {/* Weight — only for hard baits */}
                 {WEIGHTED_LURE_TYPES.has(form.type) && (
@@ -348,13 +360,16 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
                   </div>
                 )}
 
-                {([["Size", "size", SIZES]] as [string, string, string[]][]).map(([label, key, opts]) => (
-                  <div key={key}>
-                    <SelectField label={label} value={(form as Record<string, unknown>)[key] as string} onChange={(e) => { /* handled below */ }}> value={(form as Record<string, unknown>)[key] as string} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}>
-                      {opts.map((o) => <option key={o}>{o}</option>)}
-                    </select>
-                  </div>
-                ))}
+                {/* Size field */}
+                <div>
+                  <label className={labelCls}>Size</label>
+                  <select className={inputCls}
+                    value={form.size}
+                    onChange={(e) => setForm((f) => ({ ...f, size: e.target.value }))}
+                  >
+                    {SIZES.map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                </div>
                 <div>
                   <label className={labelCls}>Quantity</label>
                   <TextField type="number" min="0" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
