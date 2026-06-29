@@ -24,7 +24,7 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
   const [fetching, setFetching] = useState(false);
   const [progress, setProgress] = useState("");
   const [error, setError]       = useState("");
-
+  const [usage, setUsage]       = useState<{ used: number; limit: number; remaining: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/usage")
