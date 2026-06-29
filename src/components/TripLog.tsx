@@ -10,8 +10,7 @@ interface Props {
   onDeleteTrip: (id: number) => void;
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-gb-bg border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all placeholder:text-gb-dark";
-const labelCls = "block text-[11px] text-gb-faint font-semibold uppercase tracking-wider mb-1.5";
+// fieldCls and labelCls imported from @/lib/classes
 
 const blankCatch: Omit<Catch, "id"> = { species: "Bass (Largemouth)", weight: "", length: "", lureUsed: "", notes: "", photo: undefined };
 const blankTrip: Omit<Trip, "id"> = {

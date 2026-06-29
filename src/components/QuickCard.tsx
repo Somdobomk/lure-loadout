@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "./Button";
+import { TextField, SelectField } from "./Fields";
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 import { useState, useEffect, useRef } from "react";
 import {
   Lure, Conditions, TargetSpecies, SPECIES_PROFILES,
@@ -13,8 +16,7 @@ interface Props {
   targetSpecies: TargetSpecies;
 }
 
-const labelCls = "block text-[11px] text-gb-faint font-semibold uppercase tracking-wider mb-1.5";
-const inputCls = "w-full px-3 py-2 bg-gb-bg border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all";
+// fieldCls and labelCls imported from @/lib/classes
 
 const MOOD_COLORS: Record<string, { bg: string; border: string; label: string; icon: string }> = {
   dawn:      { bg: "bg-purple-900/30",  border: "border-purple-500/40",  label: "text-purple-300", icon: "🌅" },

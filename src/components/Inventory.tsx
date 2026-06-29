@@ -1,8 +1,11 @@
-"use client";
+'use client';
 
 import { useRef, useState } from "react";
 import { Lure, SpeciesProfile, SIZES, LURE_WEIGHTS, WEIGHTED_LURE_TYPES } from "@/lib/types";
 import { ImportLureSchema } from "@/lib/schemas";
+import { Button } from "./Button";
+import { TextField, SelectField } from "./Fields";
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 interface Props {
   lures: Lure[];
@@ -18,8 +21,7 @@ interface Props {
 const blank = { name: "", type: "Crankbait", color: "Natural/Shad", weight: "1/4 oz", size: "Medium (2–4\")", quantity: 1, notes: "" };
 const CUSTOM_VALUE = "__custom__";
 
-const inputCls = "w-full px-3 py-2.5 bg-gb-bg border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all placeholder:text-gb-dark";
-const labelCls = "block text-[11px] text-gb-faint font-semibold uppercase tracking-wider mb-1.5";
+// fieldCls and labelCls imported from @/lib/classes
 
 const RESTOCK_THRESHOLD = 1; // show in restock if qty <= this
 
@@ -144,8 +146,8 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
             <div className="text-gb-red font-bold text-sm mb-2">⚠️ Confirm delete</div>
             <div className="text-gb-fg1 text-sm mb-5 leading-relaxed">{confirmPrompt.message}</div>
             <div className="flex gap-3">
-              <button onClick={confirmPrompt.onConfirm} className="flex-1 py-2.5 rounded-xl bg-gb-red2 text-white font-semibold text-sm hover:bg-gb-red transition-colors">Delete</button>
-              <button onClick={() => setConfirmPrompt(null)} className="px-5 py-2.5 rounded-xl border border-gb-border text-gb-muted text-sm hover:border-gb-border2 hover:text-gb-fg transition-colors">Cancel</button>
+              <Button color="danger" size="full" onClick={confirmPrompt.onConfirm}>Delete</Button>
+              <Button variant="outline" onClick={() => setConfirmPrompt(null)}>Cancel</Button>
             </div>
           </div>
         </div>
@@ -191,7 +193,7 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
                   <div className="text-gb-faint text-xs mt-0.5">Out of stock or 1 remaining</div>
                 </div>
                 <button onClick={copyRestockList}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gb-surface border border-gb-border text-gb-muted text-xs font-medium hover:border-gb-border2 hover:text-gb-fg transition-colors">
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gb-surface border border-gb-border text-gb-muted text-xs font-medium hover:border-gb-border2 hover:text-gb-fg transition-colors" onClick={copyRestockList}>
                   <ListIcon />
                   {copied ? "Copied!" : "Copy list"}
                 </button>
@@ -272,9 +274,9 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
               </select>
             </div>
             <div className="flex gap-2 shrink-0">
-              <button onClick={() => fileRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-gb-surface border border-gb-border text-gb-faint text-xs font-medium hover:border-gb-blue hover:text-gb-blue transition-all">⬆ Import</button>
-              <button onClick={onExport} className="px-3 py-1.5 rounded-lg bg-gb-surface border border-gb-border text-gb-faint text-xs font-medium hover:border-gb-blue hover:text-gb-blue transition-all">⬇ Export</button>
-              <button onClick={openAdd} className="px-3 py-1.5 rounded-lg bg-gb-green2 text-gb-bg text-xs font-semibold hover:bg-gb-green transition-colors shadow-sm">+ Add</button>
+              <Button variant="outline" color="blue" size="sm" onClick={() => fileRef.current?.click()}>⬆ Import</Button>
+              <Button variant="outline" color="blue" size="sm" onClick={onExport}>⬇ Export</Button>
+              <Button size="sm" onClick={openAdd}>+ Add</Button>
             </div>
             <input ref={fileRef} type="file" accept=".json" onChange={handleFile} className="hidden" />
           </div>
@@ -306,13 +308,11 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
               <div className="text-gb-fg font-semibold text-sm mb-4">{editingLure ? "Edit lure" : "Add new lure"}</div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div className="col-span-2">
-                  <label className={labelCls}>Lure name</label>
-                  <input className={inputCls} placeholder="e.g. Rapala Original Floater" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+                  <TextField label="Lure name" placeholder="e.g. Rapala Original Floater" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
                 </div>
                 {([["Type", "type", profile.lureTypes], ["Color", "color", profile.colors]] as [string, string, string[]][]).map(([label, key, opts]) => (
                   <div key={key}>
-                    <label className={labelCls}>{label}</label>
-                    <select className={inputCls}
+                    <SelectField label={label} value={(form as Record<string, unknown>)[key] as string} onChange={(e) => { /* handled below */ }}>
                       value={(form as Record<string, unknown>)[key] as string}
                       onChange={(e) => {
                         const val = e.target.value;
@@ -353,30 +353,26 @@ export default function Inventory({ lures, profile, onSaveLure, onDelete, onAdju
 
                 {([["Size", "size", SIZES]] as [string, string, string[]][]).map(([label, key, opts]) => (
                   <div key={key}>
-                    <label className={labelCls}>{label}</label>
-                    <select className={inputCls} value={(form as Record<string, unknown>)[key] as string} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}>
+                    <SelectField label={label} value={(form as Record<string, unknown>)[key] as string} onChange={(e) => { /* handled below */ }}> value={(form as Record<string, unknown>)[key] as string} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}>
                       {opts.map((o) => <option key={o}>{o}</option>)}
                     </select>
                   </div>
                 ))}
                 <div>
                   <label className={labelCls}>Quantity</label>
-                  <input className={inputCls} type="number" min="0" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
+                  <TextField type="number" min="0" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
                 </div>
               </div>
               <div className="mb-4">
-                <label className={labelCls}>Notes</label>
-                <input className={inputCls} placeholder="Rigging tips, best conditions…" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+                <TextField label="Notes" placeholder="Rigging tips, best conditions…" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
               </div>
               <div className="flex gap-3">
-                <button onClick={handleSave} disabled={!form.name.trim()}
-                  className="flex-1 py-2.5 rounded-xl bg-gb-green2 text-gb-bg font-semibold text-sm hover:bg-gb-green disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm">
+                <Button onClick={handleSave} disabled={!form.name.trim()} size="full">
                   {editingLure ? "Save changes" : "Add to inventory"}
-                </button>
-                <button onClick={() => { setShowForm(false); setEditingLure(null); }}
-                  className="px-5 py-2.5 rounded-xl border border-gb-border text-gb-muted text-sm hover:border-gb-border2 hover:text-gb-fg transition-colors">
+                </Button>
+                <Button variant="outline" onClick={() => { setShowForm(false); setEditingLure(null); }}>
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           )}
