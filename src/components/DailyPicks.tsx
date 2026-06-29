@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "./Button";
-import { TextField, SelectField } from "./Fields";
 import { fieldCls as inputCls, labelCls } from "@/lib/classes";
+import { TextField, SelectField } from "./Fields";
 import { useState, useEffect } from "react";
 import { Lure, Conditions, Recommendations, WATER_CLARITY, WEATHER, SEASONS, TIME_OF_DAY, SPECIES, TargetSpecies, SPECIES_PROFILES } from "@/lib/types";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -12,7 +12,6 @@ interface Props {
   targetSpecies: TargetSpecies;
 }
 
-import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 
 function cacheAge(iso: string): string {

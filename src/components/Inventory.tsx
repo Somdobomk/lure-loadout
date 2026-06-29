@@ -1,12 +1,12 @@
 'use client';
 
 import { useRef, useState } from "react";
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 import { Lure, SpeciesProfile, SIZES, LURE_WEIGHTS, WEIGHTED_LURE_TYPES } from "@/lib/types";
 import { ImportLureSchema } from "@/lib/schemas";
 import { Button } from "./Button";
 import { TextField, SelectField } from "./Fields";
 import { Dialog, DialogTitle, DialogDescription, DialogActions } from "./catalyst";
-import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 interface Props {
   lures: Lure[];
@@ -22,7 +22,6 @@ interface Props {
 const blank = { name: "", type: "Crankbait", color: "Natural/Shad", weight: "1/4 oz", size: "Medium (2–4\")", quantity: 1, notes: "" };
 const CUSTOM_VALUE = "__custom__";
 
-import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 const RESTOCK_THRESHOLD = 1; // show in restock if qty <= this
 
