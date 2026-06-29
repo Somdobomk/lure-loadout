@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lure, Conditions, Recommendations, WATER_CLARITY, WEATHER, SEASONS, TIME_OF_DAY, SPECIES, TargetSpecies, SPECIES_PROFILES } from "@/lib/types";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -25,6 +25,14 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
   const [progress, setProgress] = useState("");
   const [error, setError]       = useState("");
 
+
+  useEffect(() => {
+    fetch("/api/usage")
+      .then(r => r.json())
+      .then(d => { if (d.daily_picks) setUsage(d.daily_picks); })
+      .catch(() => {});
+  }, []);
+
   const set = (key: keyof Conditions, val: string) => setConditions((c) => ({ ...c, [key]: val }));
 
   const fetchRecs = async () => {
@@ -47,9 +55,13 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
+        if (res.status === 429) {
+          throw new Error(errData.error || "Daily limit reached. Resets at midnight UTC.");
+        }
         throw new Error(errData.error || `Server error ${res.status}`);
       }
       setRec(await res.json());
+      setUsage(u => u ? { ...u, used: u.used + 1, remaining: Math.max(0, u.remaining - 1) } : null);
     } catch (err) { setError(err instanceof Error ? err.message : "Couldn't get recommendations — check your API key and try again."); }
     timers.forEach(clearTimeout);
     setProgress("");
@@ -128,6 +140,15 @@ export default function DailyPicks({ lures, targetSpecies }: Props) {
             <input className={inputCls} value={conditions.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Water temp, structure…" />
           </div>
         </div>
+        {/* Usage counter */}
+        {usage && (
+          <div className="flex items-center justify-end mb-3">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${usage.remaining === 0 ? "bg-gb-red2/20 text-gb-red" : usage.remaining === 1 ? "bg-gb-yellow2/20 text-gb-yellow" : "bg-gb-surface text-gb-faint"}`}>
+              {usage.remaining}/{usage.limit} picks left today
+            </span>
+          </div>
+        )}
+
         {fetching && (
           <p className="text-gb-faint text-xs text-center mb-3">
             You can switch tabs while we work — your picks will be ready when you return.

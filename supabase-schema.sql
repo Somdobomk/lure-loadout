@@ -111,3 +111,39 @@ create policy "Users can manage their own prefs"
 create or replace function requesting_user_id() returns text as $$
   select nullif(current_setting('request.jwt.claims', true)::json->>'sub', '')::text;
 $$ language sql stable;
+
+-- ── Quick Card cache ────────────────────────────────────────────────────────
+-- Stores the last generated Quick Card per user for cross-device sync.
+-- One row per user, upserted on each generation.
+create table if not exists quick_cards (
+  user_id    text primary key,
+  card       jsonb  not null,
+  conditions jsonb  not null,
+  saved_at   timestamptz not null default now()
+);
+
+alter table quick_cards enable row level security;
+
+create policy "Users can manage their own quick card"
+  on quick_cards for all
+  using  (user_id = requesting_user_id())
+  with check (user_id = requesting_user_id());
+
+-- ── AI Usage Rate Limiting ──────────────────────────────────────────────────
+-- Tracks daily AI call counts per user per feature.
+-- Resets automatically each UTC day via the date key.
+create table if not exists ai_usage (
+  user_id    text        not null,
+  feature    text        not null,   -- 'daily_picks' or 'quick_card'
+  date       date        not null default current_date,
+  count      int         not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, feature, date)
+);
+
+alter table ai_usage enable row level security;
+
+create policy "Users can manage their own usage"
+  on ai_usage for all
+  using  (user_id = requesting_user_id())
+  with check (user_id = requesting_user_id());

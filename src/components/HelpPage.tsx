@@ -10,9 +10,10 @@ const FAQ_SECTIONS: Section[] = [
     title: "Getting Started",
     icon: "🚀",
     items: [
-      { q: "What is LureLoadout?", a: "LureLoadout is an AI-powered fishing gear manager. You can track your lures, rods, and reels, log fishing trips and catches, and get daily lure recommendations tailored to your current conditions — water clarity, weather, season, and target species." },
-      { q: "How do I set my target species?", a: "On first launch you'll see an onboarding screen asking you to pick your primary species. This tailors lure types, colors, rod/reel specs, and AI recommendations throughout the app. You can change it any time by tapping the ⚙️ settings icon in the header." },
-      { q: "Does LureLoadout work offline?", a: "Your gear inventory and trip log are stored locally on your device, so you can view and edit them without a connection. Daily Picks recommendations and the AI require an internet connection since they call the Gemini API." },
+      { q: "What is LureLoadout?", a: "LureLoadout is an AI-powered fishing gear manager. Track your lures, rods, and reels, log fishing trips and catches, get AI-generated daily recommendations, and build time-blocked Quick Card game plans — all tailored to your conditions and the lures you actually own." },
+      { q: "How do I set my target species?", a: "On first launch you'll see an onboarding screen asking you to pick your primary species. This tailors lure types, colors, rod/reel specs, and AI recommendations throughout the app. You can change it any time by tapping the settings icon in the header." },
+      { q: "Does LureLoadout work offline?", a: "Your gear inventory and trip log load instantly from a local cache on your device. Cloud sync keeps everything current across devices when you are online. Daily Picks and Quick Card require an internet connection since they call the Gemini AI." },
+      { q: "Does LureLoadout sync across my phone, tablet, and computer?", a: "Yes. Your entire inventory, trip log, and Quick Card sync automatically via Supabase whenever you make a change. Open the app on any device and your data is there — no manual export needed." },
       {
         q: "How do I install LureLoadout on my iPhone?",
         a: (
@@ -20,7 +21,19 @@ const FAQ_SECTIONS: Section[] = [
             <li>Open the app URL in <strong className="text-gb-fg">Safari</strong> (not Chrome)</li>
             <li>Tap the <strong className="text-gb-fg">Share</strong> button (box with arrow at the bottom)</li>
             <li>Tap <strong className="text-gb-fg">&quot;Add to Home Screen&quot;</strong></li>
-            <li>Tap <strong className="text-gb-fg">Add</strong> — done!</li>
+            <li>Tap <strong className="text-gb-fg">Add</strong> — the app icon appears on your home screen</li>
+          </ol>
+        ),
+      },
+      {
+        q: "How do I install LureLoadout on my Android?",
+        a: (
+          <ol className="list-decimal list-inside space-y-1 text-gb-fg2">
+            <li>Open the app URL in <strong className="text-gb-fg">Chrome</strong></li>
+            <li>Tap the <strong className="text-gb-fg">three-dot menu</strong> (top right corner)</li>
+            <li>Tap <strong className="text-gb-fg">&quot;Add to Home screen&quot;</strong></li>
+            <li>Tap <strong className="text-gb-fg">Add</strong> — the app icon appears on your home screen</li>
+            <li>On Samsung devices you may see <strong className="text-gb-fg">&quot;Install app&quot;</strong> instead — tap that for a more native experience</li>
           </ol>
         ),
       },
@@ -30,11 +43,13 @@ const FAQ_SECTIONS: Section[] = [
     title: "Lure Inventory",
     icon: "🪝",
     items: [
-      { q: "How do I add a lure?", a: 'Go to the Lures tab and tap + Add. Fill in the name, type, color, weight, size, quantity, and any notes. Tap "Add to Inventory" to save. The type and color options shown are filtered to your target species — you can still pick any option from the list.' },
-      { q: "What does the quantity counter do?", a: "The +/− buttons on each lure card let you quickly adjust how many you have — handy when you lose one to a snag or buy a new pack on the water. Quantity turns red when it hits zero so you know to restock." },
-      { q: "Can I bulk delete lures?", a: 'Yes. The mass delete bar sits just below the filter chips. "Clear all" removes every lure. If you have a type filter active (e.g. Crankbait), a second button appears to delete just that category.' },
-      { q: "What is the Buy button on each lure card?", a: "Hovering a lure card reveals a small Buy ↗ button that opens an Amazon search for that lure. If the app owner has set up an Amazon Associates affiliate tag, the link includes it — clicking through and purchasing supports the app at no extra cost to you." },
-      { q: "What lure weight should I choose?", a: "Match the weight to your technique and conditions. Light weights (1/32–1/8 oz) suit finesse fishing and ultra-light rigs. Mid-range (1/4–1/2 oz) covers most bass presentations — jigs, spinnerbaits, crankbaits. Heavier (3/4 oz+) works for deep structure, heavy current, or punching through thick cover." },
+      { q: "How do I add a lure?", a: "Go to the Lures tab and tap + Add. Fill in the name, type, color, weight, size, quantity, and any notes. Tap Add to inventory to save. The type and color dropdowns are filtered to your target species but you can pick any option from the list." },
+      { q: "What does the quantity counter do?", a: "The +/− buttons on each lure card let you quickly adjust how many you have — handy when you lose one to a snag or buy a new pack on the water. Quantity turns red at zero so you know what needs restocking." },
+      { q: "What is the Restock tab?", a: "The Restock tab automatically surfaces any lure with 0 or 1 in stock. It shows an OUT or LOW badge on each card, lets you update quantities directly, and includes a Buy on Amazon link. Tap Copy list to get a plain-text shopping list you can paste into Notes or text to yourself before heading to the tackle shop." },
+      { q: "What are the Edit, Buy, and Remove buttons on each card?", a: "Every lure card has a persistent action row at the bottom with three tappable buttons — Edit (opens the edit form), Buy (opens an Amazon search for that lure), and Remove (deletes the lure with confirmation). These are always visible on both phones and desktop." },
+      { q: "Does the weight field apply to all lure types?", a: "No — weight only appears for hard baits like crankbaits, swimbaits, jigs, spinnerbaits, and topwaters. It is hidden for Soft Plastic and Fly since those get their weight from the hook or rig, not the bait itself. Select Custom to enter any weight not in the dropdown." },
+      { q: "Can I bulk delete lures?", a: "Yes. A mass delete bar sits just below the filter chips in the All lures tab. Clear all removes every lure. If you have a type filter active, a second button appears to delete just that category." },
+      { q: "What lure weight should I choose?", a: "Light (1/4–3/8 oz) covers most finesse and search baits. Mid-range (1/2–3/4 oz) works for jigs, spinnerbaits, and bladed jigs. Heavy (1 oz+) is for swimbaits, deep structure, or punching through cover. Use Custom for specific weights like 1.65 oz." },
     ],
   },
   {
@@ -45,45 +60,57 @@ const FAQ_SECTIONS: Section[] = [
         q: "What do Power and Action mean on a rod?",
         a: (
           <div className="space-y-1 text-gb-fg2">
-            <p><strong className="text-gb-fg">Power</strong> is how much force it takes to bend the rod — from Ultra Light (bends easily) to Extra Heavy (very stiff). Match power to lure weight and fish size.</p>
-            <p><strong className="text-gb-fg">Action</strong> is where the rod bends — Fast/Extra Fast bends near the tip (good for hook sets), Moderate/Slow bends further down (better for treble-hook lures like crankbaits).</p>
+            <p><strong className="text-gb-fg">Power</strong> is how much force it takes to bend the rod — from Ultra Light to Extra Heavy. Match power to your lure weight and target fish size.</p>
+            <p><strong className="text-gb-fg">Action</strong> is where the rod bends — Fast/Extra Fast bends near the tip (better hook sets on single hooks), Moderate/Slow bends further down (better for treble-hook lures like crankbaits).</p>
           </div>
         ),
       },
-      { q: "What gear ratio should I pick for my reel?", a: "Slow (4:1–5:1) for deep-diving crankbaits and slow-rolling swimbaits. Medium (5:1–6:1) is a versatile all-arounder. Fast (6:1–7:1) for jigs, Texas rigs, and anything you want to pick up slack quickly. Extra Fast (7:1+) for burning spinnerbaits and buzzbaits." },
-      { q: "Can I pair a rod and reel together?", a: 'Use the Notes field on each rod and reel to record what they\'re paired with — e.g. "Paired with Shimano Curado 200" on your rod. A dedicated pairing feature is planned for a future update.' },
+      { q: "What gear ratio should I pick for my reel?", a: "Slow (4:1–5:1) for deep-diving crankbaits and slow-rolling swimbaits. Medium (5:1–6:1) is a versatile all-arounder. Fast (6:1–7:1) for jigs, Texas rigs, and anything needing quick slack pickup. Extra Fast (7:1+) for burning spinnerbaits and buzzbaits." },
+      { q: "Can I pair a rod and reel together?", a: "Use the Notes field on each to record the pairing. A dedicated pairing feature is planned for a future update." },
     ],
   },
   {
     title: "Daily Picks",
     icon: "✨",
     items: [
-      { q: "How does the AI pick lures?", a: "Daily Picks sends your entire lure inventory plus today's conditions (water clarity, weather, season, time of day, target species) to Google's Gemini AI. The AI reasons about which lures from your actual inventory best match those conditions and explains why, including the specific technique to use." },
-      { q: "Why is Daily Picks a paid feature?", a: "Each recommendation calls the Gemini AI API, which has a cost per request. The subscription covers those API costs and keeps the rest of the app free." },
-      { q: "How accurate are the recommendations?", a: "The AI has strong general fishing knowledge but doesn't know your specific lake or local forage. Use the recommendations as a smart starting point, then adjust based on what you're seeing on the water. The more specific your Extra Notes (water temp, structure type, forage activity), the better the picks." },
-      { q: "How do I cancel my subscription?", a: 'Tap the "Manage subscription" link that appears in the Daily Picks tab when you\'re subscribed. This opens the Stripe billing portal where you can cancel, update payment details, or view invoices.' },
+      { q: "How does the AI pick lures?", a: "Daily Picks sends your entire lure inventory plus today's conditions (water clarity, weather, season, time of day, target species) to Google Gemini AI. It reasons about which lures from your actual inventory best match those conditions, explains why each was chosen, and suggests the specific technique to use." },
+      { q: "Can I switch tabs while waiting for Daily Picks?", a: "Yes. Once you tap Get Recommendations the request runs in the background. You can switch to Lures, Trips, or any other tab — your picks will be waiting when you return." },
+      { q: "Why is Daily Picks a paid feature?", a: "Each recommendation calls the Gemini AI API which has a cost per request. The subscription covers those API costs and keeps the rest of the app free." },
+      { q: "How accurate are the recommendations?", a: "The AI has strong general fishing knowledge but does not know your specific lake or local forage. Use the picks as a smart starting point, then adjust based on what you see on the water. The more specific your Extra Notes (water temp, structure type, forage activity), the better the output." },
+      { q: "How do I cancel my subscription?", a: "Tap Manage subscription in the Daily Picks or Quick Card tab. This opens the Stripe billing portal where you can cancel, update payment details, or view invoices." },
+    ],
+  },
+  {
+    title: "Quick Card",
+    icon: "🃏",
+    items: [
+      { q: "What is a Quick Card?", a: "A Quick Card is a time-blocked game plan for a single fishing session — like a professional guide card. It includes 2–3 time windows (dawn, morning, midday, etc.), a 4-rod loadout pulled from your actual inventory with role labels (Primary, Follow-Up, Situational, Cleanup), decision rules for when to switch lures, and a one-line strategy." },
+      { q: "Can I switch tabs while the Quick Card is generating?", a: "Yes. Quick Cards take up to a minute to generate. Tap Generate Quick Card and then switch to any other tab — the card will be ready when you come back." },
+      { q: "Does my Quick Card sync across devices?", a: "Yes. As soon as a card is generated it is saved to Supabase and synced to all your devices automatically. Generate a card on your desktop before heading out and it will be waiting on your phone at the lake." },
+      { q: "How long does my Quick Card stay saved?", a: "Quick Cards are cached for 24 hours — a game plan is only useful for the day it was made. After 24 hours the card expires and you can generate a fresh one. Tap Clear at any time to dismiss it early." },
+      { q: "How do I save my Quick Card as an image?", a: "Tap Save as image below the generated card. It downloads a high-resolution PNG of the full card that you can share, keep in your Photos app, or reference on the water without needing the app open." },
     ],
   },
   {
     title: "Trip Log",
     icon: "📋",
     items: [
-      { q: "How do I log a trip?", a: "Go to Trip Log and tap + Log Trip. Fill in the date, location, water body type, conditions, and duration. You can add individual catches inside the trip form — each catch records species, weight, length, the lure used (pulled from your inventory), notes, and an optional photo." },
-      { q: "Can I add a photo of my catch?", a: 'Yes — tap "Add photo" inside the catch form. On iPhone this opens your camera or photo library. Photos are stored locally on your device.' },
-      { q: "What are the stats at the top of the Trip Log?", a: "The three stats show your total trips logged, total individual catches across all trips, and your average catches per trip. They update automatically as you add or delete trips." },
+      { q: "How do I log a trip?", a: "Go to the Trips tab and tap + Log Trip. Fill in the date, location, water body type, conditions, and duration. Add individual catches inside the trip — each catch records species, weight, length, the lure used (pulled from your inventory), notes, and an optional photo." },
+      { q: "Can I add a photo of my catch?", a: "Yes — tap Add photo inside the catch form. On iPhone and Android this opens your camera or photo library. Photos are stored with your trip log." },
+      { q: "What are the stats at the top of the Trip Log?", a: "The three stats show total trips logged, total individual catches, and your average catches per trip. They update automatically as you add or delete entries." },
     ],
   },
   {
     title: "Account & Privacy",
     icon: "🔐",
     items: [
-      { q: "Where is my data stored?", a: "Your gear inventory and trip log are securely stored in Supabase (a cloud database) and linked to your account. A local cache is also kept in your browser for instant loading. Your account credentials are managed by Clerk. The app never shares your fishing data." },
-      { q: "What happens if I clear my browser data?", a: "If you're logged in with Supabase sync enabled, clearing your browser data only removes the local cache — your data reloads automatically from the cloud on next login. If Supabase is not configured, clearing browser storage will erase your data, so export your inventory regularly as a backup." },
-      { q: "How do I delete my account?", a: "Tap your profile avatar in the header → Manage Account → Security → Delete Account. This removes your Clerk account. Your local data (inventory, trips) can be cleared by using the mass delete tools in the app or clearing your browser's localStorage." },
-      { q: "How do I manually back up my data to the cloud?", a: 'Go to Help → scroll to the bottom and tap "Backup to Cloud". This pushes all your current inventory and trip logs to Supabase immediately. You can also see when your data was last synced in the app header.' },
+      { q: "Where is my data stored?", a: "Your inventory, trip log, and Quick Card are securely stored in Supabase (a cloud database) linked to your account. A local cache is kept on your device for instant loading. Account credentials are managed by Clerk. The app never shares your fishing data." },
+      { q: "What happens if I clear my browser data?", a: "Clearing browser data only removes the local cache — your data reloads from the cloud automatically on next login. Your inventory, trips, and Quick Card are safe in Supabase." },
+      { q: "How do I manually back up my data to the cloud?", a: "Go to Help and tap Backup Everything to Cloud at the bottom of the page. This pushes your full inventory and trip logs to Supabase immediately — useful before switching devices." },
+      { q: "How do I delete my account?", a: "Tap your profile avatar in the header, go to Manage Account, then Security, then Delete Account. This removes your Clerk account. Your inventory can be cleared using the mass delete tools in the Lures and Rods tabs." },
     ],
   },
-];
+]
 
 const IMPORT_EXPORT_GUIDE = [
   {

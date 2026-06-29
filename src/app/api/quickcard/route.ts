@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Lure, Conditions } from "@/lib/types";
 import { LureSchema, ConditionsSchema, QuickCardSchema, safeParseJson } from "@/lib/schemas";
 import { callGemini, GeminiError, geminiUserMessage, MODELS } from "@/lib/gemini";
+import { checkAndIncrement } from "@/lib/rateLimit";
+import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +72,24 @@ STRICT RULES — these values must match exactly or the response will be rejecte
 - color field in decisionRules: must be exactly one of these lowercase strings: green, yellow, orange, blue
 - All fields shown in the JSON structure above are required — do not omit any
 - Output raw JSON only — no markdown, no code fences, no explanation text before or after`;
+
+  // Rate limit check
+  const { userId } = await auth();
+  if (userId) {
+    const devEmails = (process.env.NEXT_PUBLIC_DEV_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+    const { currentUser } = await import("@clerk/nextjs/server");
+    const user = await currentUser();
+    const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() ?? "";
+    if (!devEmails.includes(email)) {
+      const usage = await checkAndIncrement(userId, "quick_card");
+      if (!usage.allowed) {
+        return NextResponse.json(
+          { error: `Daily limit reached — you've used all ${usage.limit} Quick Cards for today. Resets at midnight UTC.`, rateLimited: true, used: usage.used, limit: usage.limit },
+          { status: 429 }
+        );
+      }
+    }
+  }
 
   try {
     // Quick Card uses the primary model — time-blocked game plans need

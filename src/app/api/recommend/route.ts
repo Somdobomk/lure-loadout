@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Lure, Conditions } from "@/lib/types";
 import { LureSchema, ConditionsSchema, RecommendationSchema, safeParseJson } from "@/lib/schemas";
 import { callGemini, GeminiError, geminiUserMessage, MODELS } from "@/lib/gemini";
+import { checkAndIncrement } from "@/lib/rateLimit";
+import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +59,24 @@ Respond in JSON only (no markdown, no backticks, no preamble):
 }
 
 Recommend 2–4 top picks from the actual inventory. Be species-specific and condition-specific.`;
+
+  // Rate limit check
+  const { userId } = await auth();
+  if (userId) {
+    const devEmails = (process.env.NEXT_PUBLIC_DEV_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+    const { currentUser } = await import("@clerk/nextjs/server");
+    const user = await currentUser();
+    const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() ?? "";
+    if (!devEmails.includes(email)) {
+      const usage = await checkAndIncrement(userId, "daily_picks");
+      if (!usage.allowed) {
+        return NextResponse.json(
+          { error: `Daily limit reached — you've used all ${usage.limit} Daily Picks for today. Resets at midnight UTC.`, rateLimited: true, used: usage.used, limit: usage.limit },
+          { status: 429 }
+        );
+      }
+    }
+  }
 
   try {
     // Daily Picks uses the primary model — lure recommendations benefit from

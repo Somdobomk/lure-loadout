@@ -78,7 +78,7 @@ export default function SearchBar({ lures, rods, reels, onNavigate }: Props) {
           onFocus={() => setOpen(true)}
           onKeyDown={handleKey}
           placeholder="Search gear…"
-          className="w-full pl-8 pr-3 py-2 bg-gb-bg border border-gb-border text-gb-fg text-sm rounded-xl focus:outline-none focus:border-gb-green2 focus:ring-1 focus:ring-gb-green2/30 transition-all placeholder:text-gb-faint"
+          className="w-full pl-7 pr-2 py-1.5 bg-gb-bg border border-gb-border text-gb-fg text-xs rounded-xl focus:outline-none focus:border-gb-green2 transition-all placeholder:text-gb-dark"
         />
         {query && (
           <button onClick={() => { setQuery(""); setOpen(false); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-gb-faint hover:text-gb-fg transition-colors text-xs">✕</button>
