@@ -22,7 +22,7 @@ interface Props {
 const blank = { name: "", type: "Crankbait", color: "Natural/Shad", weight: "1/4 oz", size: "Medium (2–4\")", quantity: 1, notes: "" };
 const CUSTOM_VALUE = "__custom__";
 
-// fieldCls and labelCls imported from @/lib/classes
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 const RESTOCK_THRESHOLD = 1; // show in restock if qty <= this
 

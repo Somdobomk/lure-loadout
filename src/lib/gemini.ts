@@ -2,7 +2,7 @@
  * Gemini API helper with primary/fallback model support.
  *
  * Primary:  gemini-3.5-flash  — used for Daily Picks and Quick Card (deeper reasoning)
- * Fallback: gemini-3.1-flash-lite — used when primary is unavailable, or for
+ * Fallback: gemini-2.5-flash-lite-preview-06-17 — used when primary is unavailable, or for
  *           lightweight tasks (inventory summaries, pairing suggestions, etc.)
  */
 
@@ -10,7 +10,7 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
 export const MODELS = {
   primary:  "gemini-3.5-flash",
-  fallback: "gemini-3.1-flash-lite",
+  fallback: "gemini-2.5-flash-lite-preview-06-17",
 } as const;
 
 export type GeminiModel = (typeof MODELS)[keyof typeof MODELS];

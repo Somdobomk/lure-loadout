@@ -12,7 +12,7 @@ interface Props {
   targetSpecies: TargetSpecies;
 }
 
-// fieldCls and labelCls imported from @/lib/classes
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 
 function cacheAge(iso: string): string {

@@ -16,7 +16,7 @@ interface Props {
   targetSpecies: TargetSpecies;
 }
 
-// fieldCls and labelCls imported from @/lib/classes
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 const MOOD_COLORS: Record<string, { bg: string; border: string; label: string; icon: string }> = {
   dawn:      { bg: "bg-purple-900/30",  border: "border-purple-500/40",  label: "text-purple-300", icon: "🌅" },

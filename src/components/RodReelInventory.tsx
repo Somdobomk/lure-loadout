@@ -21,7 +21,7 @@ interface Props {
 const blankRod:  Omit<Rod,  "id"> = { name: "", brand: "", length: "6'6\"–7'", power: "Medium", action: "Fast", type: "Casting", notes: "" };
 const blankReel: Omit<Reel, "id"> = { name: "", brand: "", type: "Baitcaster", gearRatio: "6:1–7:1 (Fast)", ballBearings: "4–6", notes: "" };
 
-// fieldCls and labelCls imported from @/lib/classes
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 const saveBtnCls = "flex-1 py-2.5 rounded-xl bg-gb-green2 text-gb-bg font-semibold text-sm hover:bg-gb-green disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm";
 const cancelBtnCls = "px-5 py-2.5 rounded-xl border border-gb-border text-gb-muted text-sm hover:border-gb-border2 hover:text-gb-fg transition-colors";
 

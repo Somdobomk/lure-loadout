@@ -10,7 +10,7 @@ interface Props {
   onDeleteTrip: (id: number) => void;
 }
 
-// fieldCls and labelCls imported from @/lib/classes
+import { fieldCls as inputCls, labelCls } from "@/lib/classes";
 
 const blankCatch: Omit<Catch, "id"> = { species: "Bass (Largemouth)", weight: "", length: "", lureUsed: "", notes: "", photo: undefined };
 const blankTrip: Omit<Trip, "id"> = {
