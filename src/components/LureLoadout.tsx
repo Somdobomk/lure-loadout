@@ -176,7 +176,22 @@ export default function LureLoadout() {
             <span className="text-gb-fg font-bold text-[15px] tracking-tight">LureLoadout</span>
           </div>
 
-          <UserButton />
+          <div className="flex items-center gap-2">
+            {/* Help — mobile only (desktop uses top nav) */}
+            <button
+              onClick={() => setView("help")}
+              className={[
+                "md:hidden w-8 h-8 flex items-center justify-center rounded-xl border transition-colors",
+                view === "help" ? "bg-gb-yellow/10 border-gb-yellow text-gb-yellow" : "bg-gb-surface border-gb-border text-gb-faint hover:text-gb-fg",
+              ].join(" ")}
+              aria-label="Help"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </button>
+            <UserButton />
+          </div>
         </div>
 
         {/* Page title + sync status — contextual header */}
@@ -203,6 +218,28 @@ export default function LureLoadout() {
             </div>
           </div>
         </div>
+
+        {/* ── Desktop / tablet horizontal nav — hidden on mobile ── */}
+        <nav className="hidden md:flex items-center gap-1 px-5 pb-3">
+          {[...NAV, { key: "help" as View, label: "Help", icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          )}].map(({ key, label, icon }) => {
+            const active = view === key;
+            return (
+              <button key={key} onClick={() => setView(key)}
+                className={["flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150",
+                  active ? "bg-gb-bg text-gb-yellow shadow-sm" : "text-gb-faint hover:text-gb-muted hover:bg-gb-bg/50",
+                ].join(" ")}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className={`transition-colors ${active ? "text-gb-yellow" : "text-gb-dark"}`}>{icon}</span>
+                {label}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* ── Pocket signature: rounded-t-2xl body panel lifts from below ── */}
@@ -216,9 +253,9 @@ export default function LureLoadout() {
         {/* Scrollable content area */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto"
           onScroll={handleScroll}
-          style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+          className="flex-1 overflow-y-auto [--nav-padding:80px] md:[--nav-padding:24px]"
+          style={{ paddingBottom: "calc(var(--nav-padding, 80px) + env(safe-area-inset-bottom, 0px))" }}
         >
           <div className="max-w-2xl mx-auto px-4 pt-5">
             {view === "inventory" && (
@@ -257,10 +294,11 @@ export default function LureLoadout() {
           </div>
         </div>
 
-        {/* ── Pocket-style bottom tab bar — hides on scroll down, shows on scroll up ── */}
+        {/* ── Mobile bottom tab bar — hidden on md+ (desktop uses top nav) ── */}
+        {/* Hides on scroll down, shows on scroll up. 5 primary tabs only — Help is in header. */}
         <div
           className={[
-            "shrink-0 bg-gb-surface border-t border-gb-border transition-transform duration-300 ease-in-out",
+            "md:hidden shrink-0 bg-gb-surface border-t border-gb-border transition-transform duration-300 ease-in-out",
             navVisible ? "translate-y-0" : "translate-y-full",
           ].join(" ")}
           style={{
@@ -269,42 +307,27 @@ export default function LureLoadout() {
             paddingBottom: "env(safe-area-inset-bottom, 12px)",
           }}
         >
-          <div className="flex max-w-2xl mx-auto">
+          <div className="flex">
             {NAV.map(({ key, label, icon }) => {
               const active = view === key;
               return (
                 <button
                   key={key}
                   onClick={() => setView(key)}
-                  className="flex-1 flex flex-col items-center justify-center gap-1 pt-3 pb-2 transition-colors"
+                  className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2.5 pb-1.5 transition-colors min-w-0"
                   aria-label={label}
                   aria-current={active ? "page" : undefined}
                 >
-                  {/* Active dot above icon — Pocket pattern */}
                   <div className={`w-1 h-1 rounded-full mb-0.5 transition-all ${active ? "bg-gb-yellow" : "bg-transparent"}`} />
                   <div className={`transition-colors ${active ? "text-gb-yellow" : "text-gb-dark"}`}>
                     {icon}
                   </div>
-                  <span className={`text-[10px] font-semibold tracking-wide transition-colors ${active ? "text-gb-yellow" : "text-gb-dark"}`}>
+                  <span className={`text-[10px] font-semibold transition-colors leading-tight ${active ? "text-gb-yellow" : "text-gb-dark"}`}>
                     {label}
                   </span>
                 </button>
               );
             })}
-            {/* Help tucked in as a small icon at the end */}
-            <button
-              onClick={() => setView("help")}
-              className={`flex flex-col items-center justify-center gap-1 pt-3 pb-2 px-3 transition-colors ${view === "help" ? "text-gb-yellow" : "text-gb-dark"}`}
-              aria-label="Help"
-            >
-              <div className={`w-1 h-1 rounded-full mb-0.5 ${view === "help" ? "bg-gb-yellow" : "bg-transparent"}`} />
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <span className="text-[10px] font-semibold tracking-wide">Help</span>
-            </button>
           </div>
         </div>
       </div>
